@@ -25,7 +25,7 @@ pwsh extract-recommended-actions.ps1
 
 The script will:
 1. Connect to Microsoft Graph with `SecurityIncident.Read.All` permission
-2. Fetch incidents from the last 30 days (paginated, 100 per page)
+2. Fetch incidents from the last 30 days (paginated, 50 per page via `$top=50`)
 3. Process incidents and extract data from alerts
 4. Export results to CSV: `IncidentCatalog_WithActions_YYYYMMDD_HHmmss.csv`
 5. Display comprehensive summary statistics

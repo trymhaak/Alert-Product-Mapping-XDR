@@ -4,18 +4,18 @@ A PowerShell script that retrieves and analyzes Microsoft Defender XDR incidents
 
 ## Features
 
-- **Automated Incident Retrieval**: Fetches incidents from the last 30 days via Microsoft Graph API
-- **Recommended Actions Extraction**: Captures security recommendations for each incident
+- **Automated Incident Retrieval**: Fetches incidents created in the last 30 days via the Microsoft Graph API (v1.0)
+- **Recommended Actions Extraction**: Collects the unique `recommendedActions` text from each incident's alerts
 - **MITRE ATT&CK Mapping**: Extracts associated MITRE ATT&CK techniques
-- **Alert Type Analysis**: Identifies and categorizes alert types across incidents
+- **Alert Type Listing**: Collects the unique alert titles in each incident
 - **CSV Export**: Timestamped CSV output for further analysis and reporting
-- **Comprehensive Statistics**: Displays summary metrics by severity, status, and classification
+- **Summary Statistics**: Displays counts by severity, status, and classification, plus recommended-action and MITRE ATT&CK coverage
 
 ## Prerequisites
 
 - **PowerShell 7.0+**: Required for modern PowerShell features
-- **Microsoft Graph PowerShell SDK**: Install via `Install-Module Microsoft.Graph`
-- **Azure AD Permissions**: `SecurityIncident.Read.All` scope required
+- **Microsoft Graph PowerShell SDK**: Install via `Install-Module Microsoft.Graph` (the script only uses cmdlets from the `Microsoft.Graph.Authentication` module)
+- **Microsoft Entra ID permission**: delegated `SecurityIncident.Read.All` scope required
 
 ## Installation
 
@@ -40,10 +40,13 @@ pwsh extract-recommended-actions.ps1
 
 The script will:
 1. Prompt for Microsoft Graph authentication
-2. Retrieve incidents from the last 30 days
+2. Retrieve incidents created in the last 30 days (50 per page, following `@odata.nextLink`)
 3. Process and analyze incident data
-4. Export results to `IncidentCatalog_WithActions_YYYYMMDD_HHmmss.csv`
+4. Export results to `IncidentCatalog_WithActions_YYYYMMDD_HHmmss.csv` in the current working directory
 5. Display summary statistics
+6. Disconnect from Microsoft Graph
+
+The script takes no parameters; the 30-day window and page size are set in the script.
 
 ## Output
 
@@ -52,16 +55,22 @@ The generated CSV file includes:
 | Column | Description |
 |--------|-------------|
 | `IncidentId` | Unique incident identifier |
+| `TenantId` | Microsoft Entra tenant ID of the incident |
 | `DisplayName` | Incident name/title |
-| `Severity` | Severity level (Informational, Low, Medium, High) |
-| `Status` | Current status (Active, Resolved, etc.) |
+| `Severity` | Severity as returned by the API (for example `informational`, `low`, `medium`, `high`) |
+| `Status` | Status as returned by the API (for example `active`, `inProgress`, `resolved`) |
 | `Classification` | Incident classification |
+| `Determination` | Incident determination |
+| `CreatedDateTime` | When the incident was created |
+| `LastUpdateDateTime` | When the incident was last updated |
 | `AlertCount` | Number of alerts in the incident |
-| `AlertTypes` | Pipe-separated list of alert titles |
-| `MitreTechniques` | Comma-separated MITRE ATT&CK technique IDs |
-| `HasRecommendedActions` | Boolean indicating if actions are available |
-| `RecommendedActions` | Detailed security recommendations |
-| `IncidentUrl` | Direct link to incident in Microsoft 365 Defender portal |
+| `AlertTypes` | Unique alert titles, separated by ` \| ` |
+| `MitreTechniques` | Unique MITRE ATT&CK technique IDs, separated by `, ` |
+| `MitreTechniqueCount` | Number of unique MITRE ATT&CK techniques |
+| `HasRecommendedActions` | `True` if at least one alert has recommended actions |
+| `RecommendedActionsCount` | Number of unique recommended-action texts |
+| `RecommendedActions` | Unique recommended-action texts, separated by `===NEXT ACTION SET===` |
+| `IncidentUrl` | Link to the incident in the Microsoft Defender portal (`incidentWebUrl`) |
 
 ## Permissions
 
@@ -69,14 +78,14 @@ The script requires the following Microsoft Graph API permission:
 
 - `SecurityIncident.Read.All` - Read security incidents and alerts
 
-Grant this permission through Azure AD app registration or interactive consent during first run.
+The script signs in interactively with delegated permissions (`Connect-MgGraph -Scopes "SecurityIncident.Read.All"`). Consent is requested on first sign-in; depending on tenant settings, an administrator may need to grant consent. App-only (client credential) authentication is not built in.
 
 ## Script Architecture
 
 The script follows a structured execution flow:
 
 1. **Authentication** - Connects to Microsoft Graph with required scopes
-2. **Data Retrieval** - Paginated fetching of incidents with expanded alert details
+2. **Data Retrieval** - Paginated fetching of incidents with expanded alert details (`$expand=alerts`, `$filter=createdDateTime ge <30 days ago>`)
 3. **Data Processing** - Extraction of recommended actions, MITRE techniques, and alert types
 4. **Export** - CSV generation with UTF-8 encoding
 5. **Reporting** - Console summary with coverage statistics
@@ -97,6 +106,11 @@ MIT License - See [LICENSE](LICENSE) file for details
 
 Contributions are welcome! Please feel free to submit issues or pull requests.
 
-## Author
+## Maintainer
 
-Created for security operations and incident response analysis workflows.
+Maintained by Trym Håkansson.
+
+- Security page: https://trym.cloud/security/
+- GitHub: [@trymhaak](https://github.com/trymhaak)
+
+To report a vulnerability, see [SECURITY.md](SECURITY.md).
