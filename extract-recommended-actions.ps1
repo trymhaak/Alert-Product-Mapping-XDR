@@ -7,7 +7,7 @@
     alert types, and MITRE ATT&CK techniques. Validated against Microsoft Learn documentation.
     
 .NOTES
-    Version: 1.1
+    Version: 1.0.0
     Validated against: 
     - https://learn.microsoft.com/en-us/graph/api/security-list-incidents
     - https://learn.microsoft.com/en-us/graph/api/resources/security-incident

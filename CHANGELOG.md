@@ -7,9 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Proposed as **1.0.0**, the first tagged release. No version has been tagged yet.
-(The script's comment-based help lists an internal `Version: 1.1`; that number has
-not been published as a release.)
+## [1.0.0] - 2026-11-21
+
+First tagged release. The script's comment-based help previously listed an internal
+`Version: 1.1`, which was never published; it now reads `1.0.0`.
 
 ### Added
 
@@ -31,7 +32,7 @@ not been published as a release.)
   `.gitignore` that excludes generated CSV files.
 - `SECURITY.md` with vulnerability reporting instructions, and a Maintainer section
   in the README.
-- This changelog and draft release notes for 1.0.0 in `docs/release-notes/v1.0.0.md`.
+- This changelog and release notes for 1.0.0 in `docs/release-notes/v1.0.0.md`.
 
 ### Changed
 
@@ -39,7 +40,5 @@ not been published as a release.)
   authentication only, page size, output location and the separators used in
   multi-value columns.
 
-### Removed
-
-- Generated CSV outputs and a macOS `.DS_Store` file that were committed in the
-  initial commit were removed from the working tree.
+[Unreleased]: https://github.com/trymhaak/Alert-Product-Mapping-XDR/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/trymhaak/Alert-Product-Mapping-XDR/releases/tag/v1.0.0
